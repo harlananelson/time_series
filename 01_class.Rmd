@@ -1,0 +1,392 @@
+---
+title: "xts"
+output: html_notebook
+---
+
+# Time Series
+
+A time series object
+
+* R stores times series in objects. 
+* It must have data and a time index.
+
+Some classes of time series objects
+
+* ts
+* zoo
+* xts
+
+We are going to start with data sets from the *R Datasets Package*.
+
+Load the dataset promise.
+```{r}
+data("AirPassengers")
+```
+
+Look at the structure of the data set.
+
+```{r}
+str(AirPassengers)
+```
+What type of observations does the time series contain?
+```{r}
+typeof(AirPassengers)
+```
+What is the class of the series?
+```{r}
+class(AirPassengers)
+```
+Use the plot method for ts objects.
+```{r}
+plot(AirPassengers, main = "Air Line Passenger Data")
+```
+Load the xts Library.  This will also load the zoo packate. xts extends the zoo package.
+This allow you to use zoo methods with xts.
+```{r}
+library(xts)
+```
+Look at the first few observations.
+```{r}
+head(AirPassengers)
+```
+convert to an xts object.
+```{r}
+AirPassengers_xts <- as.xts(AirPassengers)
+```
+Look at the first few observations.
+```{r}
+head(AirPassengers_xts)
+```
+xts allows standard matrix opperations.
+```{r}
+AirPassengers_xts[3,1]
+```
+
+```{r}
+length(AirPassengers_xts)
+```
+How to create a sequence in R
+```{r}
+seq(1, 144, by = 12)
+```
+
+Exercise.
+
+* Extract observation 12.
+* Extact observation 24.
+* Extract one observation for January every year.
+
+The index of an xts object is a time object.  Here is how to create 
+a time object using seq.
+```{r}
+my_date_vector <- seq(as.Date('1952-01-01'), length = 150, by = 'months')
+
+```
+You can create white noise
+```{r}
+my_white_noise <- rnorm(150)
+```
+
+You can create a date
+```{r}
+independence_day_1960 <- as.POSIXct("1960-07-04")
+```
+
+```{r}
+white_noise <- xts(x = my_white_noise, order.by = my_date_vector,
+                     i_day = independence_day_1978)
+```
+```{r}
+plot(white_noise)
+```
+Attributes store information about an object.
+```{r}
+attributes(AirPassengers)
+```
+```{r}
+attributes(white_noise)
+```
+
+
+
+
+
+The xts object contains data and an index.  The index is the date part.
+
+```{r}
+index(AirPassengers_xts)
+```
+The data part
+```{r}
+coredata(AirPassengers_xts)
+```
+Exercise
+
+Exercise
+* Extract the data and index from your xts object.
+
+* Create an xts object with the same dates as AirPassengers but with a white noise column. Add a attribute of an important date for you.
+
+
+Here is another data set.
+```{r}
+data("airquality")
+```
+```{r}
+str(airquality)
+```
+```{r}
+coredata(airquality)
+```
+```{r}
+airquuality_xts <- as.xts(airquality)
+```
+
+```{r}
+index(airquality)
+```
+
+Exercise:
+* Look at airquality. Is it possible to reconsruct that as an xts object?  Search *The R Data Sets Package* to get the starting date and other needed information.
+
+```{r}
+airquality_xts <- xts()
+```
+```{r}
+my_date_vector <- seq(as.Date('1973-05-01'), length = 153, by = 'days')
+
+```
+```{r}
+coredata(airquality)
+```
+
+```{r}
+airquality_xts <- xts(x = coredata(airquality), order.by = my_date_vector)
+```
+```{r}
+str(airquality_xts)
+```
+```{r}
+airquality_xts
+```
+```{r}
+plot(airquality_xts)
+```
+
+```{r}
+plot(airquality_xts[,2:3])
+```
+
+
+
+Extract pieces of a time series.
+
+```{r}
+my_date_index <- seq(as.Date('1954-01-01'), length = 15, by = 'month')
+my_date_index
+```
+```{r}
+index(x)
+```
+
+```{r}
+AirPassengers_xts[my_date_index]
+```
+Exercise
+
+* Create a date vector and use that to extract rows from the AirPassengers time series.
+
+```{r}
+as.Date('1950-04-01') + 1:3
+```
+Exercise
+*  Use as.Date to create an index and extract observations from Feb 1955 to June 1956.
+*  Can you use  `as.matrix` to convert and xts to a matrix?  What happens to the dates?
+```{r}
+head(x)
+```
+
+Read and write to disk.
+```{r}
+write.zoo(x, file = file.path(".","AirPassengers.csv"), sep = ',')
+```
+```{r}
+read.zoo(file = file.path(".","AirPassengers.csv"), sep = ',', FUN = as.yearmon)
+```
+
+Exercise
+*  Go to the R data page select a time series, convert it to xts, write it, then read it in.
+
+# Selecting entries using dates
+
+```{r}
+head(x)
+AirPassengers_xts['1949']
+```
+```{r}
+AirPassengers_xts['1949-03']
+```
+```{r}
+AirPassengers_xts['1950/1960']
+```
+Exercise
+
+* Select three dates,  three years and three month to month ranges and two year to year ranges from and xts data set.  
+
+* Select the max data point from 1955.
+* Replace all the values for the summer of 1960 with 0.
+
+```{r}
+last(AirPassengers_xts, "1 week")
+```
+```{r}
+first(AirPassengers_xts, "3 years")
+```
+
+The last three days of the first three years.
+```{r}
+last(first(AirPassengers_xts, '3 years'), "3 days")
+```
+
+Exercise
+
+* Find the last four days.
+* Find the first three weeks.
+* Find the first four years.
+* Find the last two days of the first four years.
+
+
+
+Exercise
+
+* Go to the R Datasets Package and locate 5 interesting time series.  Load them into your R session.
+* Write each series to your computer
+* Read each series back into R.
+
+
+
+```{r}
+data("airmiles")
+```
+
+```{r}
+str(airmiles)
+```
+```{r}
+airmiles_xts <- as.xts(airmiles)
+```
+```{r}
+str(airmiles_xts)
+```
+
+```{r}
+airmiles_index <- index(airmiles_xts)
+AirPassengers_xts[airmiles_index]
+```
+
+
+Exercise:
+* Use the index of each series to find out which of your series cover the same time periods.
+
+```{r}
+merge(AirPassengers_xts, airmiles_xts, join = "inner")
+```
+```{r}
+index(airquality_xts)
+```
+```{r}
+index(AirPassengers_xts)
+```
+
+
+```{r}
+merge(airquality_xts, AirPassengers_xts, fill = 'locf', drop = TRUE)
+```
+
+```{r}
+rbind(AirPassengers_xts, airquality_xts)
+```
+
+
+```{r}
+na.locf(AirPassengers_xts, fromLast = FALSE )
+```
+Change in air quality
+
+```{r}
+airquality_lead <- lag(airquality_xts, k = -1)
+```
+```{r}
+airquality_lag <- lag(airquality_xts, k = 1)
+```
+```{r}
+aq <- cbind(airquality_lead,  airquality_xts, airquality_lag )
+```
+```{r}
+head(aq)
+```
+
+```{r}
+airquality_diff <- diff(airquality_xts, lag = 1, differences = 1)
+```
+
+```{r}
+airquality_w_diff <- merge(airquality_xts, airquality_diff)
+```
+```{r}
+names(airquality_w_diff )
+```
+
+```{r}
+plot(airquality_w_diff[,c('Ozone','Ozone.1')])
+```
+
+
+
+
+
+```{r}
+air_weeks <- endpoints(airquality_xts, on = 'weeks')
+```
+```{r}
+air_weeks
+```
+```{r}
+airquality_xts[,"Ozone"]
+```
+
+```{r}
+airquality_mean <- period.apply(airquality_xts[,"Ozone"], INDEX = air_weeks, FUN = mean, na.rm = TRUE)
+```
+```{r}
+airquality_mean
+```
+```{r}
+plot(airquality_mean)
+```
+```{r}
+airquality_mean
+airquality_xts[,'Ozone']
+air_merge <- merge(airquality_xts[,'Ozone'], airquality_mean)
+```
+
+```{r}
+plot(na.approx(air_merge))
+```
+
+
+
+
+
+
+```{r}
+plot(na.locf(air_merge))
+```
+```{r}
+plot(na.locf(air_merge, fromLast = TRUE))
+```
+
+
+
+
+

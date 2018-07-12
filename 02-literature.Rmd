@@ -1,3 +1,21 @@
-# Literature
 
-Here is a review of existing methods.
+
+```{r}
+library("PerformanceAnalytics")
+```
+
+The ISO-8601 Standard
+```{r}
+?xts::subset.xts
+```
+
+```{r}
+?parseISO8601
+```
+
+```{r}
+library(datasets)
+data(edhec)
+```
+
+
