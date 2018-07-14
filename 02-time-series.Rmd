@@ -1,0 +1,341 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+```{r}
+library(tidyverse)
+library(forecast)
+library(sweep)
+```
+Read in the CO2 dataset.  
+```{r}
+data("co2")
+```
+
+```{r}
+head(co2)
+```
+```{r}
+head(as.xts(co2))
+```
+Here is a reminder of the stucture of an xts object
+```{r}
+co2_xts <- xts(x = co2, order.by = seq(as.Date('1959-01-01'), length = 468, by = 'months'))
+```
+```{r}
+f <- forecast::ets(co2_xts)
+```
+
+```{r}
+sweep::sw_augment(f)
+```
+```{r}
+sweep::sw_glance(f)
+```
+```{r}
+sweep::sw_tidy(f)
+```
+```{r}
+sweep::sw_tidy_decomp(f)
+```
+```{r}
+forecast::Acf(co2_xts)
+```
+```{r}
+forecast::arfima(co2_xts)
+```
+```{r}
+forecast::auto.arima(co2_xts)
+```
+```{r}
+forecast::checkresiduals(f)
+```
+```{r}
+forecast::findfrequency(co2_xts)
+```
+```{r}
+forecast::ggAcf(co2_xts)
+```
+```{r}
+forecast::ggPacf(co2_xts)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+head(co2_xts)
+```
+Here is a plot, but notice it is very decpetive. How to lie with data.  Looks like the 
+world is going to end soon!
+```{r}
+plot(co2, ylab = expression("Atmospheric concentration of CO"[2]),
+     las = 1)
+title(main = "co2 data set")
+```
+Here is the same plot only with the xts object.
+```{r}
+plot(co2_xts, ylab = expression("Atmospheric concentration of CO"[2]),
+     las = 1)
+title(main = "co2 data set")
+```
+What if we want to use ggplot2?  What would be use for the x value?  
+We need tidy data or a `data.frame`.  
+We can use  `fortify`
+
+```{r}
+head(fortify(co2_xts))
+```
+How to lie with statistics. 
+Looks like the end of the world is near!
+```{r}
+fortify(co2_xts) %>% ggplot(aes(x = Index, y = co2_xts )) + 
+  geom_point(size = 0.1) + 
+  geom_line() +
+  theme_classic()
+```
+How not to lie.
+What happened to the increase?
+```{r}
+fortify(co2_xts) %>% ggplot(aes(x = Index, y = co2_xts )) + 
+  geom_point(size = 0.1) + 
+  geom_line() +
+  expand_limits(y = 0) +
+  theme_classic()
+```
+Lets look at one point per year.  Review endpoints.
+```{r}
+e <- endpoints(co2_xts, on = 'years') + 6
+```
+
+Lets plot one point per year.  The rate does not seem to be increasing much.
+```{r}
+fortify(co2_xts) %>% 
+  slice(e) %>% 
+  ggplot(aes(x = Index, y = co2_xts )) + 
+  geom_point(size = 0.1) + 
+  geom_line() +
+  expand_limits(y = 0) +
+  geom_smooth(method = 'lm') + 
+  theme_classic()
+```
+How fast is CO2 really increasing?  This also shows how to use an `r` value in markdown.
+```{r}
+p <- (as.numeric(last(co2_xts)) -  as.numeric(first(co2_xts)) ) / as.numeric(first(co2_xts)) * 100 / length((co2_xts))
+```
+```{r}
+start(co2_xts)
+```
+```{r}
+first(co2_xts)
+```
+
+```{r}
+end(co2_xts)
+```
+```{r}
+last(co2_xts)
+```
+
+```{r}
+identical(start(co2_xts), first(co2_xts))
+```
+
+
+
+There is a `r format(p, digits = 2)` % increase per year
+
+
+```{r}
+fortify(co2_xts) %>% ggplot(aes(x = Index, y = co2_xts )) + 
+  geom_point(size = 0.1) + 
+  geom_line() +
+  expand_limits(y = 0) +
+  theme_classic()
+```
+```{r}
+head(time(co2_xts))
+```
+```{r}
+head(index(co2_xts))
+```
+```{r}
+identical(time(co2_xts), index(co2_xts) )
+```
+```{r}
+deltat(co2_xts)
+```
+```{r}
+frequency(co2_xts)
+```
+```{r}
+head(cycle(co2_xts))
+```
+
+```{r}
+data(UKLungDeaths)
+```
+```{r}
+str(fdeaths)
+```
+```{r}
+frequency(fdeaths)
+```
+```{r}
+periodicity(fdeaths)
+```
+
+
+```{r}
+str(mdeaths)
+```
+```{r}
+plot(fdeaths)
+```
+```{r}
+start(fdeaths)
+```
+```{r}
+fdeaths_xts <- as.xts(fdeaths)
+```
+```{r}
+plot(fdeaths_xts)
+```
+```{r}
+mdeaths_xts <- as.xts(mdeaths)
+```
+
+```{r}
+fmdeaths <- merge(mdeaths_xts, fdeaths_xts)
+```
+```{r}
+frequency(fmdeaths)
+```
+```{r}
+periodicity(fmdeaths)
+```
+```{r}
+head(fmdeaths)
+```
+```{r}
+fdeaths
+```
+```{r}
+fdeaths_xts
+```
+You might want to control  frequency
+```{r}
+attr(fdeaths_xts, 'frequency') <- 4
+```
+```{r}
+as.ts(fdeaths_xts)
+```
+
+
+
+Attributes of a time series.
+
+* Mean: fixed or varying?
+* variance: constant or changing?
+* correlation over time?
+
+Things to learn
+* Arima.sim
+* arima
+
+
+The index dates only show the year and the month.  This is done by applying the
+`as.yearmonth` function to a set of dates.  
+```{r}
+class(index(fmdeaths))
+```
+
+
+```{r}
+plot(fmdeaths, legend.loc = 'topright')
+```
+```{r}
+frequency(fmdeaths)
+```
+
+
+
+
+
+Go to the R Datasets Package page.
+Select ten time series and plot them.
+Use an R notebook.
+Organize the ten plots by some characteristic of the plot or data.
+You will explain this to the class.
+ 
+ Possible grouping factors.
+* periodicity
+* Similar time periods
+* Similar plot patterns
+    - increasing
+    - decreasing
+    - increasing variance
+    - exponential (non-linear) growth
+    - seasonality
+* predictability 
+
+
+To review
+* `log` tranformation for series with exponential growth or increasing variance.
+* `diff` transformation for series with a linear trend.
+* seasonal `diff`
+
+Lets try differencing with the co2 data.
+We can us seasonal differencing.
+
+```{r}
+white_noise <- arima.sim(model = list(order = c(0,0,0)), n = 200, mean = 100, sd = 1000)
+```
+```{r}
+plot(white_noise)
+```
+```{r}
+not_white_n <- arima.sim(n= 200, list(ar = c(.2), ma = c(.1)), sd = sqrt(100))
+```
+```{r}
+plot(not_white_n)
+```
+
+
+
+
+Non-Stationary.  The mean might change.  (Different parts of the series follow different models.)
+
+Random walk with a drift
+$Y_t = c + Y_{t-1} + \epsilon_t$
+
+$\epsilon_t \sim N(0,\sigma^2) $
+
+
+Use cumsum() to get a random walk
+
+cbind to merge time series together
+
+
+$Y_t - \mu = \phi(Y_{t-1} - \mu) + \epsilon_t $
+
+White Noise
+
+$Y_t - \mu = \epsilon_t $
+
+Random Walk
+
+
+$Y_t = Y_{t-1}  + \epsilon_t $
+
+Random walk with drift
+$Y_t - \mu = (Y_{t-1} - \mu) + \epsilon_t $
+
