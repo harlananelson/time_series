@@ -18,13 +18,13 @@ library(forecast)
 library(timetk)
 #install.packages("timetk")
 ```
-The function tq_get recieves an identifier and produces the indicated data.
+The function tq_get receives an identifier and produces the indicated data.
 Here it received the identifier for the stock Netflix and returned the stock prices for 
 Netflix as indicated in the function call.
 ```{r}
 tq_get("NFLX", get = "stock.prices")
 ```
-The function is vectorized so it can recieve more than one identifier
+The function is vectorized so it can receive more than one identifier
 ```{r}
 tq_get(c("NFLX","AAPL"), get = "stock.prices")
 ```
@@ -58,6 +58,10 @@ stock_data <- SP500_index_labels %>%
 ```{r}
 stock_data
 ```
+```{r}
+class(stock_data)
+```
+
 
 Tidyquant is an extension to other time series related packages in R.  
 It tries to apply wrappers that allow them to be used in the tidyverse.
@@ -89,10 +93,10 @@ monthly_returns <- stock_data %>%
 ```{r}
 monthly_returns
 ```
+
 ```{r}
 monthly_returns %>% 
-  ggplot +
-  aes(x=date, y = monthly.returns) + 
+  ggplot(aes(x=date, y = monthly.returns)) +
   geom_point()
 ```
 Get some economic data.
@@ -101,10 +105,110 @@ oil <- tq_get("DCOILWTICO", get = "economic.data")
 names(oil)
 dim(oil)
 str(oil)
+glimpse(oil)
 head(oil)
-oil %>% na.omit() %>% pacf
+oil %>% na.omit() %>% Pacf
 
+
+oil %>% na.omit() %>% select(price) %>% pacf
+
+
+oil %>% na.omit() %>% select(price) %>% Acf
+
+plot(oil)
+
+plot(as.xts(oil))
+head(timetk::tk_xts(na.omit(oil)))
+
+
+oil_xts <- timetk::tk_xts(na.omit(oil))
+
+is.xts(oil_xts)
+
+pacf(oil_xts)
+acf(oil_xts)
+
+```
+
+```{r}
+forecast::auto.arima(oil_xts)
+```
+
+
+```{r}
 gold <- tq_get("GOLDAMGBD228NLBM", get = "economic.data")
+glimpse(gold)
+```
+```{r}
+gold_xts <- timetk::tk_xts(na.omit(gold))
+glimpse((gold_xts))
+```
+```{r}
+Acf(gold_xts)
+```
+```{r}
+Pacf(gold_xts)
+```
+```{r}
+plot(gold_xts)
+```
+```{r}
+auto.arima(gold_xts)
+```
+```{r}
+gold_diff <- diff(gold_xts)
+```
+```{r}
+Pacf(gold_diff)
+```
+```{r}
+Acf(gold_diff)
+```
+
+
+```{r}
+clf <- tq_get("LNU01000000", get = "economic.data")
+```
+```{r}
+glimpse(clf)
+```
+```{r}
+clf_xts <- timetk::tk_xts(na.omit(clf))
+```
+```{r}
+glimpse(clf_xts)
+```
+
+
+```{r}
+forecast::auto.arima(clf_xts)
+```
+
+
+
+
+```{r}
+rmhi <- tq_get("MEHOINUSA672N", get = "economic.data")
+```
+```{r}
+rmhi_xts <- timetk::tk_xts(na.omit(rmhi))
+```
+
+```{r}
+glimpse(rmhi)
+```
+```{r}
+rmhi_xts["2008-01/2016-01"]
+```
+```{r}
+forecast::ets(rmhi_xts)
+```
+
+
+
+
+
+
 plot(gold)
 
 
