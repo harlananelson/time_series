@@ -1,0 +1,163 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# Read in a data set with tidyquant.
+* Show tq_get for stock prices.
+* Show integration with dplyr and the tidyverse.
+* Read data from FRED economic data.
+
+Tidyquant is a package that tries to integrate financial analysis and therefore time series 
+analysis into the tidyverse. We will get a taste of that today.
+
+
+```{r}
+library(tidyquant)
+library(forecast)
+library(timetk)
+#install.packages("timetk")
+```
+The function tq_get recieves an identifier and produces the indicated data.
+Here it received the identifier for the stock Netflix and returned the stock prices for 
+Netflix as indicated in the function call.
+```{r}
+tq_get("NFLX", get = "stock.prices")
+```
+The function is vectorized so it can recieve more than one identifier
+```{r}
+tq_get(c("NFLX","AAPL"), get = "stock.prices")
+```
+The concept of vectorization can be expanded by using a function that create a list 
+if identifiers for calling tq_get.
+Here we create a vector of all indexes in the SP500.  This vector will then 
+be used to call tq_get.
+
+```{r}
+SP500_index_labels <- tq_index("SP500")
+```
+Notice that there is a bunch of information for each SP500 index.
+
+```{r}
+SP500_index_labels
+```
+```{r}
+class(SP500_index_labels)
+```
+Remember the dplyr slice function
+```{r}
+slice(SP500_index_labels, 1:3)
+```
+With dplr we can send this list of indexes to tq_get to return a list is prices.
+```{r}
+stock_data <- SP500_index_labels %>% 
+  slice(1:3) %>% 
+  tq_get(get = "stock.prices")
+```
+
+```{r}
+stock_data
+```
+
+Tidyquant is an extension to other time series related packages in R.  
+It tries to apply wrappers that allow them to be used in the tidyverse.
+It applies wrappers around functions available in other packages
+so they can be used with tibbles, which are the tidy verse data frames.
+With tq_transmute_fun_options, we can see all the functions that have wrappers.
+This also gives a list of important function for each of these packages.
+Notice there are not any functions from the forecast package listed. 
+The forcast package is the one with the model fitting functions.
+It appears you will still have to convert to a ts or xts object to 
+do ARIMA modeling, but this package and make data manipulation of 
+time series tibles follow the tidy data principle.
+```{r}
+tq_transmute_fun_options()
+```
+Remember in the table stock_data there is the field adjusted.
+glimpse is a tidyverse function to view any tidy verse object quickly
+```{r}
+glimpse(stock_data)
+```
+Returns is a financial term for profit on investment.
+
+```{r}
+monthly_returns <- stock_data %>% 
+  group_by(symbol) %>% 
+  tq_transmute(adjusted, mutate_fun = monthlyReturn)
+```
+
+```{r}
+monthly_returns
+```
+```{r}
+monthly_returns %>% 
+  ggplot +
+  aes(x=date, y = monthly.returns) + 
+  geom_point()
+```
+Get some economic data.
+```{r}
+oil <- tq_get("DCOILWTICO", get = "economic.data")
+names(oil)
+dim(oil)
+str(oil)
+head(oil)
+oil %>% na.omit() %>% pacf
+
+gold <- tq_get("GOLDAMGBD228NLBM", get = "economic.data")
+plot(gold)
+
+
+gold %>% na.omit() %>% pacf
+```
+
+```{r}
+monthly_returns %>% na.omit() %>% pacf
+```
+
+```{r}
+mr <- monthly_returns %>% 
+  select(date, monthly.returns) 
+
+mr_xts <- timetk::tk_xts(mr, date_var = date, freq = 12)
+mr <- as.vector(monthly_returns$monthly.returns)
+my_date <- as_date(monthly_returns$date)
+mr_xts <- xts(x = mr,
+              order.by = my_date,
+              frequency = 12)
+
+acf(mr_xts)
+monthly_returns %>% 
+  select(date, monthly.returns) %>% 
+  timetk::tk_xts(date_var = date)
+
+fortify(monthly_returns)
+monthly_returns_xts <- as.xts(monthly_returns$monthly.returns, 
+                              order.by = monthly_returns$date,
+                              frequency = 12)
+mr <- monthly_returns[c("date","monthly.returns")]
+mr
+head(monthly_returns[c("date","monthly.returns")])
+```
+```{r}
+class(mr_xts)
+acf(mr_xts)
+```
+
+```{r}
+acf(monthly_returns_xts)
+```
+
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+

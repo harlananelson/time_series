@@ -1,0 +1,104 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+```{r}
+library(quantmod)
+```
+
+```{r}
+getSymbols("QQQ", auto.assign = TRUE)
+str(QQQ)
+```
+Import symbols from Alpha Vantage.
+```{r}
+getSymbols("QQQ", src = "av", api.key = "ELIPBPDOD1KPUC9W")
+str(QQQ)
+```
+```{r}
+getSymbols("GDP", src = "FRED", auto.assign = TRUE)
+str(GDP)
+```
+
+```{r}
+getSymbols("SPY")
+str(SPY)
+```
+
+```{r}
+jnj <- getSymbols("JNJ", env = NULL)
+ls(jnj)
+str(jnj)
+```
+```{r}
+library(Quandl)
+```
+```{r}
+Quandl.api_key("YibCtPqGQEwSr5XMyeGN")
+```
+
+```{r}
+gdp <- Quandl("FRED/GDP")
+```
+```{r}
+str(gdp)
+```
+
+
+```{r}
+gdp_xts <- Quandl("FRED/GDP", type = "xts")
+gdp_zoo <- Quandl("FRED/GDP", type = "zoo")
+```
+
+Data Sources:
+* Yahoo Finance
+* Google Finance
+* Oanda
+
+```{r}
+library(quantmod)
+symbol = "PFE"
+getSymbols(symbol)
+head(PFE)
+```
+Currencies provided by Oanda
+```{r}
+currencies <- quantmod::oanda.currencies
+```
+```{r}
+install.packages('quantmod')
+```
+
+```{r}
+library(quantmod)
+```
+
+British Pound to Canadian Dollar exchange
+```{r}
+currency_pair <- "GBP/CAD"
+getSymbols(currency_pair, src = "oanda")
+```
+
+```{r}
+currency_pair <- "GBP/CAD"
+getSymbols(currency_pair, src = 'oanda')
+```
+```{r}
+str(GBPCAD)
+getSymbols(currency_pair, from = Sys.Date() = 190, to = SysDate(), src = "oanda")
+```
+
+```{r}
+series_name <- "UNRATE"
+getSymbols(series_name, src = "FRED")
+```
+```{r}
+quandl_code <- "FRED/UNRATE"
+unemploy_rate <- Quandl(quandl_code)
+```
+
+
+
+
+
+

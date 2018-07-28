@@ -152,7 +152,7 @@ c(coef(fit_y), sigma2 = fit_y$sigma2)
 x <-xts(y,order.by = dates,descr="Simulated xts object")
 colnames(x) <- c("rate")
 attr(x,'frequency') 
-
+acf(x)
 # Fit without the frequency.  Seasonal adjustment will be wrong.
 fit_auto <- auto.arima(x)
 broom::tidy(fit_auto)

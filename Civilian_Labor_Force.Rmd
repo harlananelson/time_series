@@ -1,0 +1,50 @@
+---
+title: "Civilian_Labor_Force"
+author: "Harlan A Neson"
+date: "April 7, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = FALSE,
+	warning = FALSE
+)
+```
+```{r}
+library(tidyquant)
+```
+
+```{r}
+library(tidyverse,magrittr)
+library(ggplot2)
+library(magrittr)
+```
+```{r}
+quantmod::getSymbols.FRED('gdp')  
+```
+```{r}
+tq_get("MEHOINUSA672N",get="economic.data") 
+```
+
+
+
+```{r}
+d <- tq_get("CLF16OV",get="economic.data") %>% 
+  dplyr::transmute(Date = date, CLF160V = price)
+names(d)
+
+```
+
+```{r}
+#plot(d)
+d %>% ggplot() +
+  aes(Date,CLF160V) +
+  geom_point() +
+  geom_line() + 
+  geom_smooth()
+```
+
+
+
