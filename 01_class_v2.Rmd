@@ -137,7 +137,7 @@ index(AirPassengers_xts)
 ```
 The data part
 ```{r}
-coredata(AirPassengers_xts)
+#coredata(AirPassengers_xts)
 ```
 Exercise
 
@@ -175,7 +175,7 @@ xts(x = rnorm(89), order.by = my_date_vector )
 
 
 ```{r}
-coredata(austres_xts)
+#coredata(austres_xts)
 ```
 
 
@@ -481,6 +481,10 @@ air_weeks <- endpoints(airquality_xts, on = 'weeks')
 ```{r}
 air_weeks
 ```
+```{r}
+xts::endpoints()
+```
+
 ```{r}
 #airquality_xts['1973-06/1973-08',"Ozone"]
 ```
